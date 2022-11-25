@@ -9,8 +9,9 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>APIFramework</name>
-    <url>http://maven.apache.org</url>
+    <name>API Automation Framework</name>
+    <url>https://github.com/edduardco/platformscience</url>
+    <description>Template project for API automated testing</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -26,6 +27,14 @@
                 <version>3.0.0-M7</version>
                 <configuration>
                     <testFailureIgnore>true</testFailureIgnore>
+                    <includes>src/test/java/platformscience/runner/TestRunner</includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -65,7 +74,6 @@
                                 <param>sample.properties</param>
                                 <param>other.properties</param>
                             </classificationFiles>
-                            <parallelTesting>false</parallelTesting>
                             <!-- optional, set true to group features by its Ids -->
                             <mergeFeaturesById>false</mergeFeaturesById>
                             <!-- optional, set true to get a final report with latest results of the same test from different test runs -->
