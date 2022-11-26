@@ -1,19 +1,20 @@
-package platformscience.utils;
+package models.v1.cleaningSessions;
 
 import io.cucumber.spring.ScenarioScope;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Data
 @ScenarioScope
-public class CleaningRequest {
+public class CleaningSessionsRequest {
 
     private int[] roomSize;
     private int[] coords;
-    private Queue<int[]> patches;
+    private ArrayList<int[]> patches;
     private String instructions;
 
 }

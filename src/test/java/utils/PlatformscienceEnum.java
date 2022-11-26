@@ -1,4 +1,4 @@
-package platformscience.utils;
+package utils;
 
 public enum PlatformscienceEnum {
 

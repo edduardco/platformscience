@@ -1,4 +1,4 @@
-package platformscience.utils;
+package utils;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,4 +14,5 @@ public class ApplicationProperties {
 
     @Value("${BaseUrl}")
     private String baseUrl;
+
 }

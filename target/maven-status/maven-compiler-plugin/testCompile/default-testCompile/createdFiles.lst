@@ -1,0 +1,9 @@
+utils\PlatformscienceEnum.class
+stepDefinitions\Hooks.class
+config\SpringContextConfiguration.class
+config\CucumberSpringConfiguration.class
+models\v1\cleaningSessions\CleaningSessionsRequest.class
+stepDefinitions\CleaningSteps.class
+utils\ApplicationProperties.class
+runner\TestRunner.class
+models\v1\cleaningSessions\CleaningSessionsResponse.class

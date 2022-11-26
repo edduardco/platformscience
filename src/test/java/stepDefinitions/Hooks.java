@@ -1,5 +1,6 @@
-package platformscience.stepDefinitions;
+package stepDefinitions;
 
+import io.cucumber.spring.ScenarioScope;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
@@ -7,12 +8,15 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import platformscience.utils.ApplicationProperties;
+import org.springframework.stereotype.Component;
+import utils.ApplicationProperties;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
+@Component
+@ScenarioScope
 public class Hooks {
 
     @Autowired
