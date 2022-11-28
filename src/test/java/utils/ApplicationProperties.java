@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 public class ApplicationProperties {
 
-    @Value("${BaseUrl}")
-    private String baseUrl;
+    @Value("${baseUri}")
+    private String baseUri;
 
 }

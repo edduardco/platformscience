@@ -9,11 +9,7 @@ mvn clean test
 
 Example:
 ```bash
-mvn clean test -Dcucumber.filter.tags="@cleaning-sessions"
-```
-OR
-```bash
-mvn clean test -Dcucumber.options="src/test/resources/features/cleaning.feature"
+mvn clean test -D"cucumber.filter.tags=@cleaning-sessions"
 ```
 
 ## Author Information:

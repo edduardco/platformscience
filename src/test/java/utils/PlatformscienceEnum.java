@@ -3,16 +3,16 @@ package utils;
 public enum PlatformscienceEnum {
 
     cleaning("/v1/cleaning-sessions");
-    private String resource;
+    private String basePath;
 
     PlatformscienceEnum(String resource)
     {
-        this.resource=resource;
+        this.basePath=resource;
     }
 
-    public String getResource()
+    public String getBasePath()
     {
-        return resource;
+        return basePath;
     }
 
 }

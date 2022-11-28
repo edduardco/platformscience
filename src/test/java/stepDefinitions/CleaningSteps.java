@@ -1,5 +1,7 @@
 package stepDefinitions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -7,9 +9,6 @@ import io.cucumber.java.en.When;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
-import io.restassured.specification.ResponseSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import models.v1.cleaningSessions.CleaningSessionsResponse;
 import org.springframework.context.annotation.Lazy;
@@ -22,80 +21,93 @@ import java.util.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 
-public class CleaningSteps {
+public class CleaningSteps extends BaseStep {
 
-    private RequestSpecification requestSpec;
-    private ResponseSpecification responseSpec;
-    private Response response;
+    public enum CleaningAttribute {
+        ROOM_SIZE, COORDS, PATCHES, INSTRUCTIONS
+    }
 
-    @Autowired
-    @Lazy
-    private Hooks hook;
+    EnumMap<CleaningAttribute, Object> cleaningEnumMap = new EnumMap<>(CleaningAttribute.class);
 
     @Autowired
     @Lazy
-    private CleaningSessionsRequest cleaningSessionsRequest;
+    public CleaningSessionsRequest cleaningSessionsRequest;
 
     @Autowired
     @Lazy
-    private CleaningSessionsResponse cleaningSessionsResponse;
+    public CleaningSessionsResponse cleaningSessionsResponse;
 
     @Given("A room size of {int} by {int}")
     public void setRoomSize(int x, int y) {
-        cleaningSessionsRequest.setRoomSize(new int[]{x, y});
+        cleaningEnumMap.put(CleaningAttribute.ROOM_SIZE, new ArrayList<>(Arrays.asList(x, y)));
     }
 
     @Given("robot initial coordinates of {int} and {int}")
     public void setInitialCoordinates(int x, int y) {
-        cleaningSessionsRequest.setCoords(new int[]{x, y});
+        cleaningEnumMap.put(CleaningAttribute.COORDS, new ArrayList<>(Arrays.asList(x, y)));
     }
 
     @Given("dirt patches at")
     public void setDirtPatches(DataTable table) {
-        ArrayList<int[]> patches = new ArrayList<>();
-        int[] patch;
-        List<Map<String, Integer>> rows = table.asMaps(String.class, Integer.class);
-        for (Map<String, Integer> columns : rows) {
-            patch = new int[] {columns.get("X"), columns.get("Y")};
-            System.out.printf("X: %d Y: %d\n", columns.get("X"), columns.get("Y"));
-            System.out.println("Patch: " + patch);
+        ArrayList<ArrayList<Integer>> patches = new ArrayList<>();
+        ArrayList<Integer> patch;
+        int x, y;
+        List<Map<String, String>> rows = table.asMaps();
+        for (Map<String, String> columns : rows) {
+            x = Integer.parseInt(columns.get("X"));
+            y = Integer.parseInt(columns.get("Y"));
+            patch = new ArrayList<>();
+            patch.add(x);
+            patch.add(y);
             patches.add(patch);
         }
-        cleaningSessionsRequest.setPatches(patches);
+        cleaningEnumMap.put(CleaningAttribute.PATCHES, patches);
     }
 
     @Given("movement instructions of {string}")
-    public void setInstructions(String instructions) throws IOException {
-        cleaningSessionsRequest.setInstructions(instructions);
-        System.out.println("POJO: " + cleaningSessionsRequest);
-        requestSpec = given().spec(hook.requestSpecification())
-                .body(cleaningSessionsRequest);
+    public void setInstructions(String instructions) {
+        cleaningEnumMap.put(CleaningAttribute.INSTRUCTIONS, instructions);
     }
 
-    @When("robot calls service {string} with {string} http request")
-    public void callHttpRequest(String resource, String method) {
-        PlatformscienceEnum resourceAPI = PlatformscienceEnum.valueOf(resource);
-        System.out.println(resourceAPI.getResource());
+    @When("robot calls cleaning service")
+    public void callHttpRequest() throws JsonProcessingException {
+        cleaningSessionsRequest = CleaningSessionsRequest.builder()
+                .roomSize((ArrayList<Integer>) cleaningEnumMap.get(CleaningAttribute.ROOM_SIZE))
+                .coords((ArrayList<Integer>) cleaningEnumMap.get(CleaningAttribute.COORDS))
+                .patches((ArrayList<ArrayList<Integer>>) cleaningEnumMap.get(CleaningAttribute.PATCHES))
+                .instructions((String) cleaningEnumMap.get(CleaningAttribute.INSTRUCTIONS))
+                .build();
 
-        responseSpec = new ResponseSpecBuilder().expectStatusCode(200).expectContentType(ContentType.JSON).build();
+        ObjectMapper mapper = new ObjectMapper();
+        requestSpecification = given()
+                .baseUri(properties.getBaseUri())
+                .contentType(ContentType.JSON)
+                .body(mapper.writeValueAsString(cleaningSessionsRequest));
+        System.out.println("requestSpecification: " + this.requestSpecification.get().asString());
 
-        switch (method.toUpperCase()) {
-            case "POST" -> response = requestSpec.when().post(resourceAPI.getResource());
-            default -> System.out.println("Method: " + method + " it's not valid");
-        }
+        PlatformscienceEnum resourceAPI = PlatformscienceEnum.valueOf("cleaning");
+        System.out.println(resourceAPI.getBasePath());
+
+        responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).expectContentType(ContentType.JSON).build();
+
+        System.out.println("CALL: " + requestSpecification.when().post(resourceAPI.getBasePath()));
+        response = requestSpecification.when().post(resourceAPI.getBasePath());
     }
 
     @Then("cleaning calls responds with status code {int}")
     public void verifyApiCallStatusCode(int statusCode) {
+        System.out.println("Response:\n" + response);
         assertEquals(response.getStatusCode(),200);
         JsonPath jsonPath = new JsonPath(response.asString());
-        cleaningSessionsResponse.setCoords(jsonPath.get("coords"));
-        cleaningSessionsResponse.setPatches(jsonPath.get("patches"));
+        cleaningSessionsResponse = CleaningSessionsResponse.builder()
+                .coords(jsonPath.get("coords"))
+                .patches(jsonPath.get("patches"))
+                .build();
     }
 
     @Then("verify robot final coordinates are {int} and {int}")
     public void verifyFinalCoordinates(int x, int y) {
-        assertEquals(new int[]{x, y}, cleaningSessionsResponse.getCoords());
+        assertEquals(Arrays.asList(x, y), cleaningSessionsResponse.getCoords());
     }
 
     @Then("verify cleaned patches is/are {int}")

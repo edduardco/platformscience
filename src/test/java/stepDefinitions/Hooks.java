@@ -1,40 +1,23 @@
 package stepDefinitions;
 
-import io.cucumber.spring.ScenarioScope;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
-import io.restassured.http.ContentType;
-import io.restassured.specification.RequestSpecification;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-import utils.ApplicationProperties;
+import io.cucumber.java.Scenario;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-
-@Component
-@ScenarioScope
 public class Hooks {
 
-    @Autowired
-    @Lazy
-    private ApplicationProperties properties;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Hooks.class);
 
-    public static RequestSpecification requestSpec;
+    @BeforeAll
+    public void logger(Scenario scenario){
+        LOGGER.info("[STARTED] Scenario: " + scenario.getName());
+    }
 
-    public RequestSpecification requestSpecification() throws IOException {
-        if (requestSpec == null) {
-            PrintStream log = new PrintStream(new FileOutputStream("logging.txt"));
-            requestSpec = new RequestSpecBuilder().setBaseUri(properties.getBaseUrl())
-                    .addFilter(RequestLoggingFilter.logRequestTo(log))
-                    .addFilter(ResponseLoggingFilter.logResponseTo(log))
-                    .setContentType(ContentType.JSON).build();
-            return requestSpec;
-        }
-        return requestSpec;
+    @AfterAll
+    public void tearDown(Scenario scenario) {
+           LOGGER.info("[ENDED] Scenario: " + scenario.getName());
     }
 
 }
