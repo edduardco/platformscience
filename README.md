@@ -14,5 +14,5 @@ mvn clean test -D"cucumber.filter.tags=@cleaning-sessions"
 
 ## Author Information:
 - https://github.com/edduardco
-- https://www.linkedin.com/in/eduardo-c-157349157/
+- https://www.linkedin.com/in/eduardo-c-157349157
  
