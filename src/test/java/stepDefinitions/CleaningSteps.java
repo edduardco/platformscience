@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Lazy;
 import utils.PlatformscienceEnum;
 import models.v1.cleaningSessions.CleaningSessionsRequest;
 
-import java.io.IOException;
 import java.util.*;
 
 import static io.restassured.RestAssured.given;

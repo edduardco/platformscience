@@ -9,8 +9,6 @@ import org.junit.runner.RunWith;
         glue = {"config",
                 "stepDefinitions"},
         plugin = {"pretty",
-                "html:build/test-results/html-report.html",
-                "json:build/test-results/json-report.json"
-        })
+                "io.qameta.allure.cucumber6jvm.AllureCucumber6Jvm"})
 public class TestRunner {
 }
